@@ -30,10 +30,10 @@ module.exports.addReply = function(req, res, next) {
 	var replicantId = parseInt(req.body);
 	var speakerIndex = 0 //req.params.speakerRank;
 
-	RepresentativesResource.getSpeakerFromDB(replicantId, function(speaker) {
-		if (speaker) {
+	RepresentativesResource.getSpeakerFromDB(replicantId, function(replicant) {
+		if (replicant) {
 			var speaker = speakerQueue.get(speakerIndex);
-			speaker.replies.push(speaker);
+			speaker.replies.push(replicant);
 			res.send(200);
 			return next();
 		}
