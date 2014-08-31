@@ -14,9 +14,9 @@ module.exports.addSpeaker = function(req, res, next) {
 	RepresentativesResource.getSpeakerFromDB(parseInt(req.body), function(speaker) {
 		if (speaker) {
 			if (speakerQueue.list.length === 0) {
-				success.speaking = true;
+				speaker.speaking = true;
 			}
-			speakerQueue.add(success);
+			speakerQueue.add(speaker);
 			res.send(200, speakerQueue.list);
 			return next();
 		}
@@ -33,7 +33,7 @@ module.exports.addReply = function(req, res, next) {
 	RepresentativesResource.getSpeakerFromDB(replicantId, function(speaker) {
 		if (speaker) {
 			var speaker = speakerQueue.get(speakerIndex);
-			speaker.replies.push(success);
+			speaker.replies.push(speaker);
 			res.send(200);
 			return next();
 		}
