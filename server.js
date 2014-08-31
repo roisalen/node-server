@@ -1,7 +1,7 @@
 var restify = require('restify');
 var mongojs = require("mongojs");
-var Speaker = require("../roisalen-common/models/speaker");
-var SpeakerQueue = require("../roisalen-common/models/speakerqueue");
+var Speaker = require("models/speaker");
+var SpeakerQueue = require("models/speakerqueue");
 var preflightEnabler = require('se7ensky-restify-preflight');
 
 var ip_addr = '';
