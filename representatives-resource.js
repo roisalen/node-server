@@ -1,4 +1,6 @@
 var Speaker = require("./models/speaker");
+var mongojs = require("mongojs");
+
 var connection_string = process.env.MONGOLAB_URI || '127.0.0.1:27017/myapp';
 var db = mongojs(connection_string, ['myapp']);
 var speakers = db.collection("speakers");
