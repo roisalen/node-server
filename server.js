@@ -6,16 +6,14 @@ var RepresentativesResource = require('./representatives-resource')
 
 var preflightEnabler = require('se7ensky-restify-preflight');
 
-var ip_addr = '127.0.0.1';
+//var ip_addr = '127.0.0.1';
 var port    =  process.env.PORT || '8080';
 
-
- 
 var server = restify.createServer({
     name : "roisalen"
 });
 
-server.listen(port,ip_addr, function(){
+server.listen(port, function(){
     console.log('%s listening at %s ', server.name , server.url);
 });
 
