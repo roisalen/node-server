@@ -21,14 +21,13 @@ preflightEnabler(server);
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
 
-var PATH = "/speakers";
 
 //Representatives endpoints
-server.get({path: "/speakers", version: "0.0.1"}, RepresentativesResource.getAll);
-server.get({path: "/speakers/:speakerId", version: "0.0.1"}, RepresentativesResource.get);
-server.del({path: "/speakers/:speakerId", version: "0.0.1"}, RepresentativesResource.delete);
-server.del({path: "/speakersDeleteAll/IMSURE", version: "0.0.1"}, RepresentativesResource.deleteAll);
-server.post({path: "/speakers", version: "0.0.1"}, RepresentativesResource.add);
+server.get({path: "/representatives", version: "0.0.1"}, RepresentativesResource.getAll);
+server.get({path: "/representatives/:speakerId", version: "0.0.1"}, RepresentativesResource.get);
+server.del({path: "/representatives/:speakerId", version: "0.0.1"}, RepresentativesResource.delete);
+server.del({path: "/representativesDeleteAll/IMSURE", version: "0.0.1"}, RepresentativesResource.deleteAll);
+server.post({path: "/representatives", version: "0.0.1"}, RepresentativesResource.add);
 
 //Speakerlist endpoints
 server.get({path: "/speakerList", version: "0.0.1"}, SpeakerListResource.getList);
