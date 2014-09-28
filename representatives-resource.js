@@ -1,13 +1,12 @@
 var Speaker = require("./models/speaker");
 var mongojs = require("mongojs");
-
-var connection_string = process.env.MONGOLAB_URI || '127.0.0.1:27017/myapp';
-var db = mongojs(connection_string, ['myapp']);
-var speakers = db.collection("speakers");
+var connection_string = process.env.MONGOLAB_URI || '127.0.0.1:27017/roisalen';
+var db = mongojs(connection_string, ['roisalen']);
 
 
-module.exports.getSpeakerFromDB = function(speakerId,callBack) {
-	speakers.findOne({number: speakerId}, function(err, success) {
+function getSpeakerFromDB(organisation, speakerId,callBack) {
+	var representatives = db.collection(organisation+"-representatives");
+	representatives.findOne({number: speakerId}, function(err, success) {
 		if (success){
 			return callBack(success);
 		}
@@ -15,9 +14,12 @@ module.exports.getSpeakerFromDB = function(speakerId,callBack) {
 	});
 }
 
+
+module.exports.getSpeakerFromDB = getSpeakerFromDB;
+
 module.exports.getAll = function(req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	speakers.find().sort({number: 1}, function(err, success){
+	var representatives = db.collection(req.header('X-organisation')+"-representatives");
+	representatives.find().sort({number: 1}, function(err, success){
 		if (success){
 			res.send(200, success);
 		} else{
@@ -28,8 +30,7 @@ module.exports.getAll = function(req, res, next) {
 };
 
 module.exports.get = function(req, res, next) {
-	res.setHeader("Access-Control-Allow-Origin", "*");
-	module.exports.getSpeakerFromDB(parseInt(req.params.speakerId), function(speaker) {
+	getSpeakerFromDB(req.header('X-organisation'), parseInt(req.params.speakerId), function(speaker) {
 		if (speaker) {
 			res.send(200, speaker);
 			return next();
@@ -41,8 +42,8 @@ module.exports.get = function(req, res, next) {
 };
 
 module.exports.delete = function(req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	speakers.remove({number: parseInt(req.params.speakerId)}, function(err, success){
+	var representatives = db.collection(req.header('X-organisation')+"-representatives");
+	representatives.remove({number: parseInt(req.params.speakerId)}, function(err, success){
 		if (success) {
 			res.send(200);
 			return next();
@@ -55,8 +56,8 @@ module.exports.delete = function(req, res, next) {
 }
 
 module.exports.deleteAll = function(req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	speakers.remove({},function(err, success) {
+	var representatives = db.collection(req.header('X-organisation')+"-representatives");
+	representatives.remove({},function(err, success) {
 		if (success) {
 			console.log("deleted all");
 			res.send(200);
@@ -69,14 +70,12 @@ module.exports.deleteAll = function(req, res, next) {
 
 
 module.exports.add = function(req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	console.log(req.body);
+	var representatives = db.collection(req.header('X-organisation')+"-representatives");
 	var speakerJson = req.body;
-	console.log(speakerJson);
 	var speaker = new Speaker(speakerJson.name, parseInt(speakerJson.number), speakerJson.sex, speakerJson.group);
 	
 	res.setHeader('Access-Control-Allow-Origin', '*');
-	speakers.save(speaker, function(err, success) {
+	representatives.save(speaker, function(err, success) {
 		console.log("Response success "+success);
 		console.log('Response error '+err);
 		if (success) {

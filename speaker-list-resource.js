@@ -1,17 +1,25 @@
 var SpeakerQueue = require("./models/speakerqueue");
 var RepresentativesResource = require("./representatives-resource");
 
-var speakerQueue = new SpeakerQueue();
+var speakerQueues = {};
+
+function getSpeakerQueue(organisation) {
+	if (!speakerQueues[organisation]) {
+		speakerQueues[organisation] = new SpeakerQueue();
+	}
+	return speakerQueues[organisation];
+}
 
 module.exports.getList = function(req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	res.send(200, speakerQueue.list);
 	return next();
 }
 
 module.exports.addSpeaker = function(req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	RepresentativesResource.getSpeakerFromDB(parseInt(req.body), function(speaker) {
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
+	
+	RepresentativesResource.getSpeakerFromDB(req.header('X-organisation'), parseInt(req.body), function(speaker) {
 		if (speaker) {
 			if (speakerQueue.list.length === 0) {
 				speaker.speaking = true;
@@ -26,11 +34,11 @@ module.exports.addSpeaker = function(req, res, next) {
 }
 
 module.exports.addReply = function(req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	var replicantId = parseInt(req.body);
 	var speakerIndex = 0 //req.params.speakerRank;
 
-	RepresentativesResource.getSpeakerFromDB(replicantId, function(replicant) {
+	RepresentativesResource.getSpeakerFromDB(req.header('X-organisation'), replicantId, function(replicant) {
 		if (replicant) {
 			var speaker = speakerQueue.get(speakerIndex);
 			speaker.replies.push(replicant);
@@ -43,7 +51,7 @@ module.exports.addReply = function(req, res, next) {
 };
 
 module.exports.nextSpeaker = function(req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	var speaker = speakerQueue.get(req.params.speakerRank);
 	if (speaker.replies.length > 0) {
 		nextReplyOrMainSpeakerDone(speaker, req.params.speakerRank);
@@ -56,20 +64,21 @@ module.exports.nextSpeaker = function(req, res, next) {
 }
 
 module.exports.removeSpeaker = function(req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	speakerQueue.removeAt(req.params.speakerRank);
 	res.send(200);
 	return next();
 }
 
 module.exports.deleteReply = function(req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	speakerQueue.get(req.params.speakerRank).replies.splice(req.params.replyRank,1);
 	res.send(200);
 	return next();
 }
 
 function nextReplyOrMainSpeakerDone(speaker, speakerRank) {
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	if (speaker.speaking) {
 		speaker.speaking = false;
 		speaker.replies[0].speaking = true;
@@ -91,6 +100,7 @@ function nextReplyOrMainSpeakerDone(speaker, speakerRank) {
 }
 
 function mainSpeakerDone(speaker, speakerRank) {
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	if (speakerRank + 1 < speakerQueue.size()) {
 		var nextSpeaker = speakerQueue.get(parseInt(speakerRank) + 1);
 		nextSpeaker.speaking = true;
