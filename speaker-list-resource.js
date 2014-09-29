@@ -1,5 +1,6 @@
 var SpeakerQueue = require("./models/speakerqueue");
 var RepresentativesResource = require("./representatives-resource");
+var StatisticsService = require('./statistics-resource');
 
 var speakerQueues = {};
 
@@ -51,14 +52,10 @@ module.exports.addReply = function(req, res, next) {
 };
 
 module.exports.nextSpeaker = function(req, res, next) {
-	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
+	var organisation = req.header('X-organisation')
+	var speakerQueue = getSpeakerQueue(organisation);
 	var speaker = speakerQueue.get(req.params.speakerRank);
-	if (speaker.replies.length > 0) {
-		nextReplyOrMainSpeakerDone(speaker, req.params.speakerRank);
-	} else {
-		mainSpeakerDone(speaker, req.params.speakerRank);
-	}
-
+	handleSpeakerOrReplicantDone(speaker, req.params.speakerRank, organisation);
 	res.send(200, speakerQueue.list);
 	return next();
 }
@@ -77,30 +74,48 @@ module.exports.deleteReply = function(req, res, next) {
 	return next();
 }
 
-function nextReplyOrMainSpeakerDone(speaker, speakerRank) {
-	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
+function handleSpeakerOrReplicantDone(speaker, speakerRank, organisation) {
 	if (speaker.speaking) {
-		speaker.speaking = false;
-		speaker.replies[0].speaking = true;
+		StatisticsService.logRepresentativeSpoke(speaker, organisation);
+		handleSpeakerDoneSpeaking(speaker, speakerRank, organisation);
 	} else {
-		var speakingIndex = 0;
-		speaker.replies.forEach(function(reply, index, array) {
-			if (reply.speaking) {
-				speakingIndex = index;		
-			}
-		});
-
-		if (speakingIndex + 1 === speaker.replies.length) {
-			mainSpeakerDone(speaker,speakerRank)
-		} else {
-			speaker.replies[speakingIndex].speaking = false;
-			speaker.replies[speakingIndex + 1].speaking = true;
-		}	
+		var currentReplicantIndex = getCurrentReplicantIndex(speaker.replies);
+		StatisticsService.logRepresentativeReplied(speaker.replies[currentReplicantIndex], organisation);
+		handleReplicantDoneSpeaking(speaker, speakerRank, currentReplicantIndex, organisation);
 	}
 }
 
-function mainSpeakerDone(speaker, speakerRank) {
-	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
+function handleSpeakerDoneSpeaking(speaker, speakerRank, organisation) {
+	speaker.speaking = false;
+	if (speaker.replies.length > 0) {
+		speaker.replies[0].speaking = true;
+	} else {
+		speakerAndAllRepliesDone(speaker, speakerRank, organisation);
+	}
+}
+
+function handleReplicantDoneSpeaking(speaker, speakerRank, currentReplicantIndex, organisation) {
+	if (currentReplicantIndex + 1 === speaker.replies.length) {
+		speakerAndAllRepliesDone(speaker,speakerRank, organisation)
+	} else {
+		speaker.replies[currentReplicantIndex].speaking = false;
+		speaker.replies[currentReplicantIndex + 1].speaking = true;
+	}	
+}
+
+function getCurrentReplicantIndex(replies) {
+	var replicantSpeakingIndex = -1;
+	replies.forEach(function(reply, index, array) {
+		if (reply.speaking) {
+			replicantSpeakingIndex = index;		
+		}
+	});
+
+	return replicantSpeakingIndex;
+}
+
+function speakerAndAllRepliesDone(speaker, speakerRank, organisation) {
+	var speakerQueue = getSpeakerQueue(organisation);
 	if (speakerRank + 1 < speakerQueue.size()) {
 		var nextSpeaker = speakerQueue.get(parseInt(speakerRank) + 1);
 		nextSpeaker.speaking = true;

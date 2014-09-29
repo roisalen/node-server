@@ -21,3 +21,5 @@ module.exports.get = function(req, res, next) {
 	res.send(200, getSubject(req.header('X-organisation')));
 	return next();
 }
+
+module.exports.getSubject = getSubject;

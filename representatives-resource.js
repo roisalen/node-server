@@ -1,10 +1,10 @@
 var Speaker = require("./models/speaker");
 var mongojs = require("mongojs");
 var connection_string = process.env.MONGOLAB_URI || '127.0.0.1:27017/roisalen';
-var db = mongojs(connection_string, ['roisalen']);
+var db = mongojs(connection_string, []);
 
 
-function getSpeakerFromDB(organisation, speakerId,callBack) {
+function getSpeakerFromDB(organisation, speakerId, callBack) {
 	var representatives = db.collection(organisation+"-representatives");
 	representatives.findOne({number: speakerId}, function(err, success) {
 		if (success){
