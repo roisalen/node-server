@@ -47,11 +47,12 @@ function getRankedListByField(req, res, next) {
 				}
 			},
 
-			speakers: { $push : "$name"},
-			subjects: { $push : "$subject"},
-			dates: { $push : "$date"},
-			groups: { $push: "$group"},
-			organisations: { $push: "$organisation"}
+			speakers:  { $addToSet : "$name"},
+			subjects: { $addToSet : "$subject"},
+			dates: { $addToSet : "$date"},
+			groups: { $addToSet: "$group"},
+			organisations: { $addToSet: "$organisation" },
+			sexes: { $addToSet: "$sex"}
 		}
 	},		
 	{ $sort: {mainEntries: -1, replies: -1}}
