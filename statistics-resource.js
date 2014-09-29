@@ -5,6 +5,7 @@ var SubjectResource = require('./subject-resource');
 
 function logRepresentativeSpoke(representative, organisation) {
 	var logEntry = representative;
+	delete logEntry._id;
 	logEntry.speakingType = "main";
 	logEntry.organisation = organisation;
 	saveLogEntry(logEntry);
@@ -12,7 +13,6 @@ function logRepresentativeSpoke(representative, organisation) {
 
 function saveLogEntry(logEntry) {
 	var today = new Date();
-	logEntry._id = today.getTime();
 	logEntry.date = today.getDate() + "." + today.getMonth() + "." + today.getFullYear();
 	logEntry.time = today.getHours() + "." + today.getMinutes();
 	logEntry.subject = SubjectResource.getSubject(logEntry.organisation);
@@ -29,29 +29,45 @@ function logRepresentativeReplied(representative, organisation) {
 	saveLogEntry(logEntry);
 }
 
-function getRankedListOfSpeakers(req, res, next) {
-
+function getRankedListByField(req, res, next) {
 	db.statistics.aggregate([
-		{ $group: { 
-			_id : "$sex",
-			count: { $sum: 1}
-			}
-		},
-		{ $sort: {count: -1}}
-	], function(err, speakersRanked) {
+	{ 
+		$group: { 
+			_id : "$" + req.params.field,
+			mainEntries: { 
+				$sum: { 
+					$cond : 
+						[{$eq : ["$speakingType", "main"]}, 1, 0]
+				}
+			},
+			replies: { 
+				$sum: { 
+					$cond : 
+						[{$eq : ["$speakingType", "reply"]}, 1, 0]
+				}
+			},
+
+			speakers: { $push : "$name"},
+			subjects: { $push : "$subject"},
+			dates: { $push : "$date"},
+			groups: { $push: "$group"},
+			organisations: { $push: "$organisation"}
+		}
+	},		
+	{ $sort: {mainEntries: -1, replies: -1}}
+	], function(err, groupsRanked) {
 		if( err ) {
-			console.log("Statistics: Could not get aggregate of speakers, error: ");
+			console.log("Statistics: Could not get aggregate of " + req.params.field + " , error: " + err);
 			res.send(500);
 			return next(err);
 		} else {
-			res.send(200, speakersRanked);
+			res.send(200, groupsRanked);
 			return next()
 		} 
 	});
 }
 
 
-
 module.exports.logRepresentativeSpoke = logRepresentativeSpoke;
 module.exports.logRepresentativeReplied = logRepresentativeReplied;
-module.exports.getRankedListOfSpeakers = getRankedListOfSpeakers;
+module.exports.getRankedListByField = getRankedListByField;

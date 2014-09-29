@@ -43,4 +43,4 @@ server.post({path: "/subject", version: "0.0.1"}, SubjectResource.set);
 server.get({path: "/subject", version: "0.0.1"}, SubjectResource.get);
 
 //Statistics endpoints
-server.get({path: "/statistics/speakers", verison: "0.0.1"}, StatisticsResource.getRankedListOfSpeakers);
+server.get({path: "/statistics/:field", version: "0.0.1"}, StatisticsResource.getRankedListByField);
