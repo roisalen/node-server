@@ -13,6 +13,7 @@ function logRepresentativeSpoke(representative, organisation) {
 
 function saveLogEntry(logEntry) {
 	var today = new Date();
+	logEntry.fullDate = today;
 	logEntry.date = today.getDate() + "." + today.getMonth() + "." + today.getFullYear();
 	logEntry.time = today.getHours() + "." + today.getMinutes();
 	logEntry.subject = SubjectResource.getSubject(logEntry.organisation);
@@ -30,7 +31,30 @@ function logRepresentativeReplied(representative, organisation) {
 }
 
 function getRankedListByField(req, res, next) {
+	var fromDate, toDate;
+	if(req.params.fromDate) {
+		var dateParams = req.params.fromDate.split('-');
+		fromDate = new Date(dateParams[2], dateParams[1], dateParams[0]);
+	} else {
+		//Setting default to be logentries for today
+		fromDate = new Date();
+		fromDate.setHours(0,0,0,0);
+	}
+
+	if (req.params.toDate) {
+		var dateParams = req.params.toDate.split('-');
+		toDate = new Date(dateParams[2], dateParams[1], dateParams[0]);
+	} else {
+		toDate = new Date();
+	}
+
 	db.statistics.aggregate([
+	{
+		$match: {
+			organisation : req.header('X-organisation'),
+			fullDate: {$gte: fromDate, $lte: toDate}
+		}
+	},
 	{ 
 		$group: { 
 			_id : "$" + req.params.field,

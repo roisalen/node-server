@@ -44,3 +44,5 @@ server.get({path: "/subject", version: "0.0.1"}, SubjectResource.get);
 
 //Statistics endpoints
 server.get({path: "/statistics/:field", version: "0.0.1"}, StatisticsResource.getRankedListByField);
+server.get({path: "/statistics/:field/:fromDate", version: "0.0.1"}, StatisticsResource.getRankedListByField);
+server.get({path: "/statistics/:field/:fromDate/:toDate", version: "0.0.1"}, StatisticsResource.getRankedListByField);
