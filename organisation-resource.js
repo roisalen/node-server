@@ -16,10 +16,11 @@ function getOrganisations(req, res, next) {
 
 function addOrganisation(req, res, next) {
 	db.organisations.save(req.body, function(err, success) {
-		if (success) {
+		if (!err && success) {
 			res.send(201, success);
 			return next();
 		} else {
+			console.log(success);
 			res.send(500);
 			return next(err);
 		}
