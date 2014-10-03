@@ -2,8 +2,9 @@ var restify = require('restify');
 
 var SpeakerListResource = require('./speaker-list-resource');
 var SubjectResource = require('./subject-resource');
-var RepresentativesResource = require('./representatives-resource')
-var StatisticsResource = require('./statistics-resource')
+var RepresentativesResource = require('./representatives-resource');
+var StatisticsResource = require('./statistics-resource');
+var OrganisationResource = require('./organisation-resource');
 
 var preflightEnabler = require('se7ensky-restify-preflight');
 
@@ -21,7 +22,6 @@ server.listen(port, function(){
 preflightEnabler(server, {headers: ['X-organisation']});
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
-
 
 //Representatives endpoints
 server.get({path: "/representatives", version: "0.0.1"}, RepresentativesResource.getAll);
@@ -41,6 +41,10 @@ server.post({path: "/speakerList/:speakerRank", version: "0.0.1"}, SpeakerListRe
 //Subject endpoints
 server.post({path: "/subject", version: "0.0.1"}, SubjectResource.set);
 server.get({path: "/subject", version: "0.0.1"}, SubjectResource.get);
+
+//Organisation endpoints
+server.get({path: "/organisations", version: "0.0.1"}, OrganisationResource.get);
+server.post({path: "/organisations", version: "0.0.1"}, OrganisationResource.add);
 
 //Statistics endpoints
 server.get({path: "/statistics/:field", version: "0.0.1"}, StatisticsResource.getRankedListByField);
