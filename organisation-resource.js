@@ -16,6 +16,7 @@ function getOrganisations(req, res, next) {
 }
 
 function addOrganisation(req, res, next) {
+	req.body._id = req.body.shortName;
 	db.organisations.save(req.body, function(err, success) {
 		if (!err && success) {
 			res.send(201, success);
