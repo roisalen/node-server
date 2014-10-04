@@ -43,7 +43,7 @@ module.exports.addReply = function(req, res, next) {
 		if (replicant) {
 			var speaker = speakerQueue.get(speakerIndex);
 			speaker.replies.push(replicant);
-			res.send(200);
+			res.send(200, speakerQueue.list);
 			return next();
 		}
 		res.send(500);
@@ -63,14 +63,14 @@ module.exports.nextSpeaker = function(req, res, next) {
 module.exports.removeSpeaker = function(req, res, next) {
 	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	speakerQueue.removeAt(req.params.speakerRank);
-	res.send(200);
+	res.send(200, speakerQueue.list);
 	return next();
 }
 
 module.exports.deleteReply = function(req, res, next) {
 	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	speakerQueue.get(req.params.speakerRank).replies.splice(req.params.replyRank,1);
-	res.send(200);
+	res.send(200, speakerQueue.list);
 	return next();
 }
 
