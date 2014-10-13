@@ -42,6 +42,9 @@ server.post({path: "/speakerList/:speakerRank", version: "0.0.1"}, SpeakerListRe
 server.post({path: "/subject", version: "0.0.1"}, SubjectResource.set);
 server.get({path: "/subject", version: "0.0.1"}, SubjectResource.get);
 
+server.post({path: "/message", version: "0.0.1"}, MessageResource.set);
+server.get({path: "/message", version: "0.0.1"}, MessageResource.get);
+
 //Organisation endpoints
 server.get({path: "/organisations", version: "0.0.1"}, OrganisationResource.get);
 server.post({path: "/organisations", version: "0.0.1"}, OrganisationResource.add);
