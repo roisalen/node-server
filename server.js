@@ -2,6 +2,7 @@ var restify = require('restify');
 
 var SpeakerListResource = require('./speaker-list-resource');
 var SubjectResource = require('./subject-resource');
+var MessageResource = require('./message-resource');
 var RepresentativesResource = require('./representatives-resource');
 var StatisticsResource = require('./statistics-resource');
 var OrganisationResource = require('./organisation-resource');
