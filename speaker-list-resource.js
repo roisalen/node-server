@@ -51,56 +51,30 @@ module.exports.addReply = function(req, res, next) {
 	});
 };
 
-module.exports.nextSpeaker = function(req, res, next) {
-	var organisation = req.header('X-organisation')
-	var speakerQueue = getSpeakerQueue(organisation);
-	var speaker = speakerQueue.get(req.params.speakerRank);
-	handleSpeakerOrReplicantDone(speaker, req.params.speakerRank, organisation);
-	res.send(200, speakerQueue.list);
-	return next();
-}
-
-module.exports.removeSpeaker = function(req, res, next) {
-	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
-	speakerQueue.removeAt(req.params.speakerRank);
-	res.send(200, speakerQueue.list);
-	return next();
-}
-
-module.exports.deleteReply = function(req, res, next) {
-	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
-	speakerQueue.get(req.params.speakerRank).replies.splice(req.params.replyRank,1);
-	res.send(200, speakerQueue.list);
-	return next();
-}
-
-function handleSpeakerOrReplicantDone(speaker, speakerRank, organisation) {
-	if (speaker.speaking) {
-		StatisticsService.logRepresentativeSpoke(speaker, organisation);
-		handleSpeakerDoneSpeaking(speaker, speakerRank, organisation);
+function updateQueueWithNextSpeakerBasedOnSpeaker(currentSpeaker, speakerRank, speakerQueue) 
+{
+	currentSpeaker.speaking = false;
+	if (currentSpeaker.replies.length > 0) {
+		currentSpeaker.replies[0].speaking = true;
+	} else if (speakerRank + 1 < speakerQueue.size()) {
+		speakerQueue.get(parseInt(speakerRank) + 1).speaking = true;
+		speakerQueue.removeAt(speakerRank);
 	} else {
-		var currentReplicantIndex = getCurrentReplicantIndex(speaker.replies);
-		StatisticsService.logRepresentativeReplied(speaker.replies[currentReplicantIndex], organisation);
-		handleReplicantDoneSpeaking(speaker, speakerRank, currentReplicantIndex, organisation);
+		speakerQueue.removeAt(speakerRank);
 	}
 }
 
-function handleSpeakerDoneSpeaking(speaker, speakerRank, organisation) {
-	speaker.speaking = false;
-	if (speaker.replies.length > 0) {
-		speaker.replies[0].speaking = true;
+function updateQueueWithNextSpeakerBasedOnReplicant(speaker, speakerRank, replicantRank, speakerQueue) 
+{
+	if (parseInt(replicantRank) + 1 === speaker.replies.length) {
+		if (speakerRank + 1 < speakerQueue.size()) {
+			speakerQueue.get(parseInt(speakerRank) + 1).speaking = true;
+		}
+		speakerQueue.removeAt(speakerRank);
 	} else {
-		speakerAndAllRepliesDone(speaker, speakerRank, organisation);
+		speaker.replies[replicantRank].speaking = false;
+		speaker.replies[parseInt(replicantRank) + 1].speaking = true;
 	}
-}
-
-function handleReplicantDoneSpeaking(speaker, speakerRank, currentReplicantIndex, organisation) {
-	if (currentReplicantIndex + 1 === speaker.replies.length) {
-		speakerAndAllRepliesDone(speaker,speakerRank, organisation)
-	} else {
-		speaker.replies[currentReplicantIndex].speaking = false;
-		speaker.replies[currentReplicantIndex + 1].speaking = true;
-	}	
 }
 
 function getCurrentReplicantIndex(replies) {
@@ -114,11 +88,70 @@ function getCurrentReplicantIndex(replies) {
 	return replicantSpeakingIndex;
 }
 
-function speakerAndAllRepliesDone(speaker, speakerRank, organisation) {
+module.exports.nextSpeaker = function(req, res, next) {
+	var organisation = req.header('X-organisation')
 	var speakerQueue = getSpeakerQueue(organisation);
-	if (speakerRank + 1 < speakerQueue.size()) {
-		var nextSpeaker = speakerQueue.get(parseInt(speakerRank) + 1);
-		nextSpeaker.speaking = true;
+	var speakerRank = req.params.speakerRank;
+	var speaker = speakerQueue.get(speakerRank);
+
+	if (speaker.speaking) {
+		StatisticsService.logRepresentativeSpoke(speaker, organisation);
+		updateQueueWithNextSpeakerBasedOnSpeaker(speaker, speakerRank, speakerQueue);
+	} else {
+		var currentReplicantIndex = getCurrentReplicantIndex(speaker.replies);
+		StatisticsService.logRepresentativeReplied(speaker.replies[currentReplicantIndex], organisation);
+		updateQueueWithNextSpeakerBasedOnReplicant(speaker, speakerRank, currentReplicantIndex, speakerQueue);
 	}
-	speakerQueue.remove(speaker);
+
+	res.send(200, speakerQueue.list);
+	return next();
 }
+
+module.exports.removeSpeaker = function(req, res, next) {
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
+	var speakerRank = req.params.speakerRank;
+	var speaker = speakerQueue.get(speakerRank)
+
+	if (!speaker) {
+		res.send(404);
+		return next();
+	}
+	
+	if (speaker.speaking) {
+		updateQueueWithNextSpeakerBasedOnSpeaker(speaker, speakerRank, speakerQueue);
+	} else {
+		speakerQueue.removeAt(speakerRank);
+	}
+	res.send(200, speakerQueue.list);
+	return next();
+}
+
+module.exports.deleteReply = function(req, res, next) {
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
+	var speakerRank = req.params.speakerRank;
+	var replicantRank = req.params.replyRank;
+	var speaker = speakerQueue.get(speakerRank)
+
+	if (!speaker) {
+		res.send(404);
+		return next;
+	}
+
+	var replicant = speaker.replies[replicantRank];
+
+	if (!replicant) {
+		res.send(404);
+		return next;
+	}
+	
+	if (replicant.speaking) {
+		updateQueueWithNextSpeakerBasedOnReplicant(speaker, speakerRank, replicantRank, speakerQueue);
+	} 
+	
+	speaker.replies.splice(replicantRank,1);
+	res.send(200, speakerQueue.list);
+	return next();
+}
+
+
+
