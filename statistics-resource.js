@@ -25,6 +25,7 @@ function saveLogEntry(logEntry) {
 
 function logRepresentativeReplied(representative, organisation) {
 	var logEntry = representative;
+	delete logEntry._id;
 	logEntry.speakingType = "reply";
 	logEntry.organisation = organisation;
 	saveLogEntry(logEntry);
