@@ -3,7 +3,6 @@ var connection_string = process.env.MONGOLAB_URI || '127.0.0.1:27017/roisalen';
 var db = mongojs(connection_string, ['organisations']);
 
 function getOrganisations(req, res, next) {
-	
 	db.organisations.find(function(err, success) {
 		if (success) {
 			res.send(200, success);
@@ -29,5 +28,19 @@ function addOrganisation(req, res, next) {
 	});
 }
 
+function deleteOrganisation(req, res, next) {
+	db.organisations.remove({_id: req.params.id}, function (err, success) {
+		if (success) {
+			console.log("deleted all");
+			res.send(200);
+		} else {
+			res.send(500);
+		}
+		return next(err);
+
+	});
+}
+
 module.exports.get = getOrganisations;
 module.exports.add = addOrganisation;
+module.exports.delete = deleteOrganisation;

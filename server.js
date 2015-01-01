@@ -49,6 +49,7 @@ server.get({path: "/message", version: "0.0.1"}, MessageResource.get);
 //Organisation endpoints
 server.get({path: "/organisations", version: "0.0.1"}, OrganisationResource.get);
 server.post({path: "/organisations", version: "0.0.1"}, OrganisationResource.add);
+server.del({path: "/organisations/IMSURE/:id", version: "0.0.1"}, OrganisationResource.delete);
 
 //Statistics endpoints
 server.get({path: "/statistics/:field", version: "0.0.1"}, StatisticsResource.getRankedListByField);

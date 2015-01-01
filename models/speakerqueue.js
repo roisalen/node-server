@@ -34,10 +34,11 @@ function SpeakerQueue() {
     }
 
     function removeAt(index) {
+        console.log("removing at index "+index);
         if (index > -1) {
             this.list.splice(index, 1);
         } else {
-            console.log("Error: "+who+" not in list");
+            console.log("Error: index lower than 0");
         }
 
     }
