@@ -29,7 +29,7 @@ function addOrganisation(req, res, next) {
 }
 
 function deleteOrganisation(req, res, next) {
-	db.organisations.remove({_id: req.params.id}, function (err, success) {
+	db.organisations.remove({_id: db.ObjectId(req.params.id)}, function (err, success) {
 		if (success) {
 			console.log("deleted all");
 			res.send(200);
