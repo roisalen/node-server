@@ -84,10 +84,10 @@ function getRankedListByField(req, res, next) {
 	], function(err, groupsRanked) {
 		if( err ) {
 			console.log("Statistics: Could not get aggregate of " + req.params.field + " , error: " + err);
-			res.send(500);
+			res.status(500).send();
 			return next(err);
 		} else {
-			res.send(200, groupsRanked);
+			res.status(200).send(groupsRanked);
 			return next()
 		} 
 	});

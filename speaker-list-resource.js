@@ -13,40 +13,40 @@ function getSpeakerQueue(organisation) {
 
 module.exports.getList = function(req, res, next) {
 	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
-	res.send(200, speakerQueue.list);
+	res.status(200).send(speakerQueue.list);
 	return next();
 }
 
 module.exports.addSpeaker = function(req, res, next) {
 	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	
-	RepresentativesResource.getSpeakerFromDB(req.header('X-organisation'), parseInt(req.body), function(speaker) {
+	RepresentativesResource.getSpeakerFromDB(req.header('X-organisation'), parseInt(req.body.speakerNumber), function(speaker) {
 		if (speaker) {
 			if (speakerQueue.list.length === 0) {
 				speaker.speaking = true;
 			}
 			speakerQueue.add(speaker);
-			res.send(200, speakerQueue.list);
+			res.status(200).send(speakerQueue.list);
 			return next();
 		}
-		res.send(500);
+		res.status(500).send();
 		return next(err);
 	});	
 }
 
 module.exports.addReply = function(req, res, next) {
 	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
-	var replicantId = parseInt(req.body);
+	var replicantId = parseInt(req.body.replicantNumber);
 	var speakerIndex = 0 //req.params.speakerRank;
 
 	RepresentativesResource.getSpeakerFromDB(req.header('X-organisation'), replicantId, function(replicant) {
 		if (replicant) {
 			var speaker = speakerQueue.get(speakerIndex);
 			speaker.replies.push(replicant);
-			res.send(200, speakerQueue.list);
+			res.status(200).send(speakerQueue.list);
 			return next();
 		}
-		res.send(500);
+		res.status(500).send();
 		return next(err);
 	});
 };
@@ -103,7 +103,7 @@ module.exports.nextSpeaker = function(req, res, next) {
 		updateQueueWithNextSpeakerBasedOnReplicant(speaker, speakerRank, currentReplicantIndex, speakerQueue);
 	}
 
-	res.send(200, speakerQueue.list);
+	res.status(200).send(speakerQueue.list);
 	return next();
 }
 
@@ -113,7 +113,7 @@ module.exports.removeSpeaker = function(req, res, next) {
 	var speaker = speakerQueue.get(speakerRank)
 
 	if (!speaker) {
-		res.send(404);
+		res.status(404).send();
 		return next();
 	}
 	
@@ -122,7 +122,7 @@ module.exports.removeSpeaker = function(req, res, next) {
 	} else {
 		speakerQueue.removeAt(speakerRank);
 	}
-	res.send(200, speakerQueue.list);
+	res.status(200).send(speakerQueue.list);
 	return next();
 }
 
@@ -133,14 +133,14 @@ module.exports.deleteReply = function(req, res, next) {
 	var speaker = speakerQueue.get(speakerRank)
 
 	if (!speaker) {
-		res.send(404);
+		res.status(404).send();
 		return next;
 	}
 
 	var replicant = speaker.replies[replicantRank];
 
 	if (!replicant) {
-		res.send(404);
+		res.status(404).send();
 		return next;
 	}
 	
@@ -149,9 +149,6 @@ module.exports.deleteReply = function(req, res, next) {
 	} 
 	
 	speaker.replies.splice(replicantRank,1);
-	res.send(200, speakerQueue.list);
+	res.status(200).send(speakerQueue.list);
 	return next();
 }
-
-
-

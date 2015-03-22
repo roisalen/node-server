@@ -5,10 +5,10 @@ var db = mongojs(connection_string, ['organisations']);
 function getOrganisations(req, res, next) {
 	db.organisations.find(function(err, success) {
 		if (success) {
-			res.send(200, success);
+			res.status(200).send(success);
 			return next();
 		} else {
-			res.send(500);
+			res.status(500).send();
 			return next(err);
 		}
 	});
@@ -18,11 +18,11 @@ function addOrganisation(req, res, next) {
 	req.body._id = req.body.shortName;
 	db.organisations.save(req.body, function(err, success) {
 		if (!err && success) {
-			res.send(201, success);
+			res.status(201).send(success);
 			return next();
 		} else {
 			console.log(success);
-			res.send(500);
+			res.status(500).send();
 			return next(err);
 		}
 	});
@@ -36,9 +36,9 @@ function deleteOrganisation(req, res, next) {
 	db.organisations.remove({_id: id}, function (err, success) {
 		if (success) {
 			console.log("deleted all");
-			res.send(200);
+			res.status(200).send();
 		} else {
-			res.send(500);
+			res.status(500).send();
 		}
 		return next(err);
 
