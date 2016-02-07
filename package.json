@@ -6,9 +6,8 @@
   "dependencies": {
     "mongodb": "^1.4.8",
     "mongojs": "^0.12.1",
-    "express": "^4.12.3",
-    "body-parser": "^1.12.2",
-    "cors": "^2.5.3"
+    "restify": "^2.8.2",
+    "se7ensky-restify-preflight": "^0.1.7"
   },
   "devDependencies": {},
   "scripts": {

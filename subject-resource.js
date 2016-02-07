@@ -12,13 +12,13 @@ var setSubject = function(organisation, subject) {
 	subjectMap[organisation] = subject;
 }
 module.exports.set = function(req, res, next) {
-	setSubject(req.header('X-organisation'), req.body.subject);
-	res.status(201).send();
+	setSubject(req.header('X-organisation'), req.body);
+	res.send(201);
 	return next();
 }
 
 module.exports.get = function(req, res, next) {
-	res.status(200).send(getSubject(req.header('X-organisation')));
+	res.send(200, getSubject(req.header('X-organisation')));
 	return next();
 }
 

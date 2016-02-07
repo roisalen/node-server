@@ -21,9 +21,9 @@ module.exports.getAll = function(req, res, next) {
 	var representatives = db.collection(req.header('X-organisation')+"-representatives");
 	representatives.find().sort({number: 1}, function(err, success){
 		if (success){
-			res.status(200).send(success);
+			res.send(200, success);
 		} else{
-			res.status(500).send();
+			res.send(500);
 			return next(err);
 		}
 	});
@@ -32,10 +32,10 @@ module.exports.getAll = function(req, res, next) {
 module.exports.get = function(req, res, next) {
 	getSpeakerFromDB(req.header('X-organisation'), parseInt(req.params.speakerId), function(speaker) {
 		if (speaker) {
-			res.status(200).send(speaker);
+			res.send(200, speaker);
 			return next();
 		} else {
-			res.status(500).send();
+			res.send(500);
 			return next(err);
 		}
 	});
@@ -45,10 +45,10 @@ module.exports.delete = function(req, res, next) {
 	var representatives = db.collection(req.header('X-organisation')+"-representatives");
 	representatives.remove({number: parseInt(req.params.speakerId)}, function(err, success){
 		if (success) {
-			res.status(200).send();
+			res.send(200);
 			return next();
 		} else {
-			res.status(500).send();
+			res.send(500);
 		}
 
 		return next(err);
@@ -60,9 +60,9 @@ module.exports.deleteAll = function(req, res, next) {
 	representatives.remove({},function(err, success) {
 		if (success) {
 			console.log("deleted all");
-			res.status(200).send();
+			res.send(200);
 		} else {
-			res.status(500).send();
+			res.send(500);
 		}
 		return next(err);
 	});
@@ -71,18 +71,18 @@ module.exports.deleteAll = function(req, res, next) {
 
 module.exports.add = function(req, res, next) {
 	var representatives = db.collection(req.header('X-organisation')+"-representatives");
-
 	var speakerJson = req.body;
 	var speaker = new Speaker(speakerJson.name, parseInt(speakerJson.number), speakerJson.sex, speakerJson.group);
-
+	
+	res.setHeader('Access-Control-Allow-Origin', '*');
 	representatives.save(speaker, function(err, success) {
 		console.log("Response success "+success);
 		console.log('Response error '+err);
 		if (success) {
-			res.status(201).send(speaker);
+			res.send(201, speaker);
 			return next();
 		} else {
-			res.status(500).send();
+			res.send(500);
 			return next(err);
 		}
 	});
