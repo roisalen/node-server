@@ -30,6 +30,9 @@ function addOrganisation(req, res, next) {
 
 function deleteOrganisation(req, res, next) {
 	var id = req.params.id;
+	if (id.length > 12) {
+		id = db.ObjectId(id);
+	}
 	db.organisations.remove({_id: id}, function (err, success) {
 		if (success) {
 			console.log("deleted all");
