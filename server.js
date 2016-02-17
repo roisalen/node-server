@@ -1,5 +1,9 @@
-var restify = require('restify');
+var express = require('express')
+var app = express()
+var bodyParser = require('body-parser')
+var cors = require('cors')
 
+//Get app resources
 var SpeakerListResource = require('./speaker-list-resource');
 var SubjectResource = require('./subject-resource');
 var MessageResource = require('./message-resource');
@@ -7,51 +11,45 @@ var RepresentativesResource = require('./representatives-resource');
 var StatisticsResource = require('./statistics-resource');
 var OrganisationResource = require('./organisation-resource');
 
-var preflightEnabler = require('se7ensky-restify-preflight');
+//Set server
+var server = app.listen(8080, function() {
+	var host = server.address().address
+	var port = server.address().port
+	console.log('Listening at http://%s:%s', host, port)
+})
 
-//var ip_addr = '127.0.0.1';
-var port    =  process.env.PORT || '8080';
+//Use bodyparser and cors
+app.use(bodyParser.json())
+app.use(cors())
 
-var server = restify.createServer({
-    name : "roisalen"
-});
-
-server.listen(port, function(){
-    console.log('%s listening at %s ', server.name , server.url);
-});
-
-preflightEnabler(server, {headers: ['X-organisation']});
-server.use(restify.queryParser());
-server.use(restify.bodyParser());
-
-//Representatives endpoints
-server.get({path: "/representatives", version: "0.0.1"}, RepresentativesResource.getAll);
-server.get({path: "/representatives/:speakerId", version: "0.0.1"}, RepresentativesResource.get);
-server.del({path: "/representatives/:speakerId", version: "0.0.1"}, RepresentativesResource.delete);
-server.del({path: "/representativesDeleteAll/IMSURE", version: "0.0.1"}, RepresentativesResource.deleteAll);
-server.post({path: "/representatives", version: "0.0.1"}, RepresentativesResource.add);
+//Representatives endpoint
+app.get('/representatives', RepresentativesResource.getAll)
+app.get('/representatives/:speakerId', RepresentativesResource.get)
+app.delete('/representatives/:speakerId', RepresentativesResource.delete)
+app.delete('/representativesDeleteAll/IMSURE', RepresentativesResource.deleteAll)
+app.post('/representatives', RepresentativesResource.add)
 
 //Speakerlist endpoints
-server.get({path: "/speakerList", version: "0.0.1"}, SpeakerListResource.getList);
-server.post({path: "/speakerList", version: "0.0.1"}, SpeakerListResource.addSpeaker);
-server.del({path: "/speakerList/:speakerRank", version: "0.0.1"}, SpeakerListResource.removeSpeaker);
-server.post({path: "/speakerList/:speakerRank/replies", version: "0.0.1"}, SpeakerListResource.addReply);
-server.del({path: "/speakerList/:speakerRank/replies/:replyRank", version: "0.0.1"}, SpeakerListResource.deleteReply);
-server.post({path: "/speakerList/:speakerRank", version: "0.0.1"}, SpeakerListResource.nextSpeaker);
+app.get('/speakerList', SpeakerListResource.getList)
+app.post('/speakerList', SpeakerListResource.addSpeaker)
+app.delete('/speakerList/:speakerRank', SpeakerListResource.removeSpeaker)
+app.post('/speakerList/:speakerRank/replies', SpeakerListResource.addReply)
+app.delete('/speakerList/:speakerRank/replies/:replyRank', SpeakerListResource.deleteReply)
+app.post('/speakerList/:speakerRank', SpeakerListResource.nextSpeaker)
 
 //Subject endpoints
-server.post({path: "/subject", version: "0.0.1"}, SubjectResource.set);
-server.get({path: "/subject", version: "0.0.1"}, SubjectResource.get);
+app.post('/subject', SubjectResource.set)
+app.get('/subject', SubjectResource.get)
 
-server.post({path: "/message", version: "0.0.1"}, MessageResource.set);
-server.get({path: "/message", version: "0.0.1"}, MessageResource.get);
+app.post('/message', MessageResource.set)
+app.get('/message', MessageResource.get)
 
 //Organisation endpoints
-server.get({path: "/organisations", version: "0.0.1"}, OrganisationResource.get);
-server.post({path: "/organisations", version: "0.0.1"}, OrganisationResource.add);
-server.del({path: "/organisations/IMSURE/:id", version: "0.0.1"}, OrganisationResource.delete);
+app.get('/organisations', OrganisationResource.get)
+app.post('/organisations', OrganisationResource.add)
+app.delete('/organisations/IMSURE/:id', OrganisationResource.delete)
 
 //Statistics endpoints
-server.get({path: "/statistics/:field", version: "0.0.1"}, StatisticsResource.getRankedListByField);
-server.get({path: "/statistics/:field/:fromDate", version: "0.0.1"}, StatisticsResource.getRankedListByField);
-server.get({path: "/statistics/:field/:fromDate/:toDate", version: "0.0.1"}, StatisticsResource.getRankedListByField);
+app.get('/statistics/:field', StatisticsResource.getRankedListByField)
+app.get('/statistics/:field/:fromDate', StatisticsResource.getRankedListByField)
+app.get('/statistics/:field/:fromDate/:toDate', StatisticsResource.getRankedListByField)
