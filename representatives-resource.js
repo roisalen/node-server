@@ -73,11 +73,16 @@ module.exports.add = function(req, res, next) {
 	var representatives = db.collection(req.header('X-organisation')+"-representatives");
 
 	var speakerJson = req.body;
-	var speaker = new Speaker(speakerJson.name, parseInt(speakerJson.number), speakerJson.sex, speakerJson.group);
+	var speakerNumber = parseInt(speakerJson.number);
+
+	if (isNaN(speakerNumber)) {
+		res.status(400).send("Speaker number must be a number");
+		return next();
+	}
+
+	var speaker = new Speaker(speakerJson.name, speakerNumber, speakerJson.sex, speakerJson.group);
 
 	representatives.save(speaker, function(err, success) {
-		console.log("Response success "+success);
-		console.log('Response error '+err);
 		if (success) {
 			res.status(201).send(speaker);
 			return next();
