@@ -30,7 +30,7 @@ module.exports.addSpeaker = function(req, res, next) {
 			return next();
 		}
 		res.status(500).send();
-		return next(err);
+		return next();
 	});	
 }
 
@@ -47,7 +47,7 @@ module.exports.addReply = function(req, res, next) {
 			return next();
 		}
 		res.status(500).send();
-		return next(err);
+		return next();
 	});
 };
 
