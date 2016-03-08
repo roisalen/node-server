@@ -20,24 +20,29 @@ module.exports.getList = function(req, res, next) {
 module.exports.addSpeaker = function(req, res, next) {
 	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	
-	RepresentativesResource.getSpeakerFromDB(req.header('X-organisation'), parseInt(req.body.speakerNumber), function(speaker) {
-		if (speaker) {
-			if (speakerQueue.list.length === 0) {
-				speaker.speaking = true;
+	var addSpeakerToListIfSpeaker = function(speaker) {
+			if (speaker) {
+				if (speakerQueue.list.length === 0) {
+					speaker.speaking = true;
+				}
+				speakerQueue.add(speaker);
+				res.status(200).send(speakerQueue.list);
+				return next();
 			}
-			speakerQueue.add(speaker);
-			res.status(200).send(speakerQueue.list);
+			res.status(500).send();
 			return next();
-		}
-		res.status(500).send();
-		return next(err);
-	});	
+	}
+
+	RepresentativesResource.getSpeakerFromDB(
+		req.header('X-organisation'), 
+		parseInt(req.body.speakerNumber),
+		addSpeakerToListIfSpeaker);	
 }
 
 module.exports.addReply = function(req, res, next) {
 	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	var replicantId = parseInt(req.body.replicantNumber);
-	var speakerIndex = 0 //req.params.speakerRank;
+	var speakerIndex = 0 
 
 	RepresentativesResource.getSpeakerFromDB(req.header('X-organisation'), replicantId, function(replicant) {
 		if (replicant) {
@@ -49,6 +54,29 @@ module.exports.addReply = function(req, res, next) {
 		res.status(500).send();
 		return next(err);
 	});
+};
+
+module.exports.moveSpeaker = function(req, res, next) {
+	console.log("In move speaker");
+	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
+
+	var oldPlace = parseInt(req.params.oldPlace);
+	var newPlace = parseInt(req.body.newPlace);
+
+	var speaker = speakerQueue.get(oldPlace);
+
+	if (newPlace > 0) {
+		speaker.speaking = false;
+	}
+	speakerQueue.removeAt(oldPlace);
+	speakerQueue.add(speaker, newPlace);
+
+	if (oldPlace == 0) {
+		speakerQueue.get(0).speaking = true;
+	}
+
+	res.status(200).send(speakerQueue.list);
+	return next();
 };
 
 function updateQueueWithNextSpeakerBasedOnSpeaker(currentSpeaker, speakerRank, speakerQueue) 
@@ -64,8 +92,7 @@ function updateQueueWithNextSpeakerBasedOnSpeaker(currentSpeaker, speakerRank, s
 	}
 }
 
-function updateQueueWithNextSpeakerBasedOnReplicant(speaker, speakerRank, replicantRank, speakerQueue) 
-{
+function updateQueueWithNextSpeakerBasedOnReplicant(speaker, speakerRank, replicantRank, speakerQueue) {
 	if (parseInt(replicantRank) + 1 === speaker.replies.length) {
 		if (speakerRank + 1 < speakerQueue.size()) {
 			speakerQueue.get(parseInt(speakerRank) + 1).speaking = true;
@@ -117,13 +144,19 @@ module.exports.removeSpeaker = function(req, res, next) {
 		return next();
 	}
 	
+	removeSpeaker(speakerRank, speaker, speakerQueue);
+	
+	res.status(200).send(speakerQueue.list);
+	return next();
+}
+
+function removeSpeaker(speakerRank, speaker, speakerQueue) {
 	if (speaker.speaking) {
 		updateQueueWithNextSpeakerBasedOnSpeaker(speaker, speakerRank, speakerQueue);
 	} else {
 		speakerQueue.removeAt(speakerRank);
 	}
-	res.status(200).send(speakerQueue.list);
-	return next();
+
 }
 
 module.exports.deleteReply = function(req, res, next) {

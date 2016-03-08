@@ -19,6 +19,12 @@ function SpeakerQueue() {
         console.log("Queue is now: "+JSON.stringify(this.list));
     }
 
+    function move(from, to) {
+        var speaker = get(from);
+        removeAt(from);
+        add(speaker, to);
+    }
+
     function next() {
         return this.list.shift();
     }
