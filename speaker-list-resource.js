@@ -117,11 +117,12 @@ module.exports.removeSpeaker = function(req, res, next) {
 		return next();
 	}
 	
-	if (speaker.speaking) {
-		updateQueueWithNextSpeakerBasedOnSpeaker(speaker, speakerRank, speakerQueue);
-	} else {
-		speakerQueue.removeAt(speakerRank);
-	}
+	if (speakerRank == 0 && speakerQueue.size() > 1) {
+		speakerQueue.get(parseInt(speakerRank) + 1).speaking = true;
+	} 
+	
+	speakerQueue.removeAt(speakerRank);
+	
 	res.status(200).send(speakerQueue.list);
 	return next();
 }
