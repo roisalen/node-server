@@ -2,9 +2,14 @@ var mongojs = require("mongojs");
 var connection_string = process.env.MONGOLAB_URI || '127.0.0.1:27017/roisalen';
 var db = mongojs(connection_string, ['organisations']);
 
+function compare(orgA, orgB) {
+	return orgA.name > orgB.name;
+}
+
 function getOrganisations(req, res, next) {
 	db.organisations.find(function(err, success) {
 		if (success) {
+			success.sort(compare);
 			res.status(200).send(success);
 			return next();
 		} else {
