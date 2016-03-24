@@ -52,7 +52,7 @@ module.exports.addReply = function(req, res, next) {
 			return next();
 		}
 		res.status(500).send();
-		return next(err);
+		return next();
 	});
 };
 
@@ -151,12 +151,11 @@ module.exports.removeSpeaker = function(req, res, next) {
 }
 
 function removeSpeaker(speakerRank, speaker, speakerQueue) {
-	if (speaker.speaking) {
-		updateQueueWithNextSpeakerBasedOnSpeaker(speaker, speakerRank, speakerQueue);
-	} else {
-		speakerQueue.removeAt(speakerRank);
-	}
-
+	if (speakerRank == 0 && speakerQueue.size() > 1) {
+		speakerQueue.get(1).speaking = true;
+	} 
+	
+	speakerQueue.removeAt(speakerRank);
 }
 
 module.exports.deleteReply = function(req, res, next) {
