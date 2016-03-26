@@ -1,7 +1,9 @@
 var express = require('express')
+var https = require('https')
 var app = express()
 var bodyParser = require('body-parser')
 var cors = require('cors')
+var fs = require('fs')
 
 //Get app resources
 var SpeakerListResource = require('./speaker-list-resource');
@@ -10,13 +12,6 @@ var MessageResource = require('./message-resource');
 var RepresentativesResource = require('./representatives-resource');
 var StatisticsResource = require('./statistics-resource');
 var OrganisationResource = require('./organisation-resource');
-
-//Set server
-var server = app.listen(8080, function() {
-	var host = server.address().address
-	var port = server.address().port
-	console.log('Listening at http://%s:%s', host, port)
-})
 
 //Use bodyparser and cors
 app.use(bodyParser.json())
@@ -54,3 +49,19 @@ app.delete('/organisations/IMSURE/:id', OrganisationResource.delete)
 app.get('/statistics/:field', StatisticsResource.getRankedListByField)
 app.get('/statistics/:field/:fromDate', StatisticsResource.getRankedListByField)
 app.get('/statistics/:field/:fromDate/:toDate', StatisticsResource.getRankedListByField)
+
+var options = {
+    key  : fs.readFileSync('key.pem'),
+    cert : fs.readFileSync('cert.pem')
+}
+
+//Set server
+// var server = app.listen(8080, function() {
+// 	var host = server.address().address
+// 	var port = server.address().port
+// 	console.log('Listening at http://%s:%s', host, port)
+// })
+
+https.createServer(options, app).listen(4443, '', null, function() {
+    console.log('Securely listening at https://%s:%s', this.address().address, this.address().port);
+});
