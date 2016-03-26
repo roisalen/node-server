@@ -34,8 +34,9 @@ app.get('/speakerList', SpeakerListResource.getList)
 app.post('/speakerList', SpeakerListResource.addSpeaker)
 app.delete('/speakerList/:speakerRank', SpeakerListResource.removeSpeaker)
 app.post('/speakerList/:speakerRank/replies', SpeakerListResource.addReply)
-app.delete('/speakerList/:speakerRank/replies/:replyRank', SpeakerListResource.deleteReply)
-app.post('/speakerList/:speakerRank', SpeakerListResource.nextSpeaker)
+app.delete('/speakerList/:speakerRank/replies/:replyRank', SpeakerListResource.deleteReply);
+app.post('/speakerList/:speakerRank', SpeakerListResource.nextSpeaker);
+app.put('/speakerList/:oldPlace', SpeakerListResource.moveSpeaker);
 
 //Subject endpoints
 app.post('/subject', SubjectResource.set)

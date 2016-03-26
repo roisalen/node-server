@@ -14,8 +14,11 @@ function SpeakerQueue() {
 
     function add(who, num) {
         // put speaker into list at index num
-        if(typeof(num) === 'number') this.list.splice(num, 0, who);
-        this.list.push(who);
+        if(typeof(num) === 'number') {
+            this.list.splice(num, 0, who);
+        } else {
+            this.list.push(who);
+        }
         console.log("Queue is now: "+JSON.stringify(this.list));
     }
 

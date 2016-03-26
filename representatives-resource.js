@@ -20,9 +20,9 @@ module.exports.getSpeakerFromDB = getSpeakerFromDB;
 module.exports.getAll = function(req, res, next) {
 	var representatives = db.collection(req.header('X-organisation')+"-representatives");
 	representatives.find().sort({number: 1}, function(err, success){
-		if (success){
+		if (success) {
 			res.status(200).send(success);
-		} else{
+		} else {
 			res.status(500).send();
 			return next(err);
 		}
@@ -36,7 +36,7 @@ module.exports.get = function(req, res, next) {
 			return next();
 		} else {
 			res.status(500).send();
-			return next(err);
+			return next();
 		}
 	});
 };
