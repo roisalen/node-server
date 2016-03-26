@@ -65,15 +65,15 @@ module.exports.moveSpeaker = function(req, res, next) {
 
 	var speaker = speakerQueue.get(oldPlace);
 
-	if (newPlace > 0) {
+	if (oldPlace == 0) {
 		speaker.speaking = false;
+		speakerQueue.get(1).speaking = true;
+	} else if (newPlace == 0) {
+		speaker.speaking = true;
+		speakerQueue.get(0).speaking = false;
 	}
 	speakerQueue.removeAt(oldPlace);
 	speakerQueue.add(speaker, newPlace);
-
-	if (oldPlace == 0) {
-		speakerQueue.get(0).speaking = true;
-	}
 
 	res.status(200).send(speakerQueue.list);
 	return next();
