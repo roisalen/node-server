@@ -62,6 +62,11 @@ module.exports.moveSpeaker = function(req, res, next) {
 	var oldPlace = parseInt(req.params.oldPlace);
 	var newPlace = parseInt(req.body.newPlace);
 
+	if (oldPlace > speakerQueue.size() || newPlace > speakerQueue.size() ||
+		oldPlace < 0 || newPlace < 0) {
+		res.status(500);
+		return next();
+	}
 	var speaker = speakerQueue.get(oldPlace);
 
 	if (oldPlace == 0) {
