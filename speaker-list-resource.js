@@ -57,7 +57,6 @@ module.exports.addReply = function(req, res, next) {
 };
 
 module.exports.moveSpeaker = function(req, res, next) {
-	console.log("In move speaker");
 	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 
 	var oldPlace = parseInt(req.params.oldPlace);
@@ -70,8 +69,17 @@ module.exports.moveSpeaker = function(req, res, next) {
 		speakerQueue.get(1).speaking = true;
 	} else if (newPlace == 0) {
 		speaker.speaking = true;
-		speakerQueue.get(0).speaking = false;
+		var currentFirst = speakerQueue.get(0);
+		if (currentFirst.speaking) {
+			currentFirst.speaking = false;
+		} else {
+			var currentReplicantIndex = getCurrentReplicantIndex(currentFirst.replies);
+			if (currentReplicantIndex > -1) {
+				currentFirst.replies[currentReplicantIndex].speaking = false;
+			}
+		}
 	}
+
 	speakerQueue.removeAt(oldPlace);
 	speakerQueue.add(speaker, newPlace);
 
