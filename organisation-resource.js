@@ -6,6 +6,14 @@ function compare(orgA, orgB) {
 	return orgA.name.localeCompare(orgB.name);
 }
 
+function validShortName(shortName) {
+	return shortName && shortName.length > 2 && shortName.length < 12;
+}
+
+function validOrgName(orgName) {
+	return orgName && orgName.length > 0;
+}
+
 function getOrganisations(req, res, next) {
 	db.organisations.find(function(err, success) {
 		if (success) {
@@ -20,6 +28,10 @@ function getOrganisations(req, res, next) {
 }
 
 function addOrganisation(req, res, next) {
+	if (!validShortName(req.body.shortName) || !validOrgName(req.body.name)) {
+		res.status(400).send();
+		return next();
+	}
 	req.body._id = req.body.shortName;
 	db.organisations.save(req.body, function(err, success) {
 		if (!err && success) {
