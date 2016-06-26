@@ -49,7 +49,6 @@ app.get('/message', MessageResource.get);
 app.get('/organisations', OrganisationResource.get);
 app.post('/organisations', OrganisationResource.add);
 app.delete('/organisations/IMSURE/:id', OrganisationResource.delete);
-app.get('/organisations/DELETEONCE', OrganisationResource.deleteOnce);
 
 //Statistics endpoints
 app.get('/statistics/:field', StatisticsResource.getRankedListByField)
