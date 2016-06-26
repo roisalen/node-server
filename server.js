@@ -40,15 +40,16 @@ app.put('/speakerList/:oldPlace', SpeakerListResource.moveSpeaker);
 
 //Subject endpoints
 app.post('/subject', SubjectResource.set)
-app.get('/subject', SubjectResource.get)
+app.get('/subject', SubjectResource.get);
 
-app.post('/message', MessageResource.set)
-app.get('/message', MessageResource.get)
+app.post('/message', MessageResource.set);
+app.get('/message', MessageResource.get);
 
 //Organisation endpoints
-app.get('/organisations', OrganisationResource.get)
-app.post('/organisations', OrganisationResource.add)
-app.delete('/organisations/IMSURE/:id', OrganisationResource.delete)
+app.get('/organisations', OrganisationResource.get);
+app.post('/organisations', OrganisationResource.add);
+app.delete('/organisations/IMSURE/:id', OrganisationResource.delete);
+app.get('/organisations/DELETEONCE', OrganisationResource.deleteOnce);
 
 //Statistics endpoints
 app.get('/statistics/:field', StatisticsResource.getRankedListByField)

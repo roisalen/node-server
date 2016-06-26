@@ -50,6 +50,18 @@ function deleteOrganisation(req, res, next) {
 	});
 }
 
+function deleteRFandNMLM(req, res, next) {
+	db.organisations.remove({shortName: "realistforeningen"}, function (err, success) {
+	});
+	db.organisations.remove({name: "Noregs Mållag"}, function(err, success) {
+				if (success) {
+					res.status(200).send();
+				}
+				return next(err);
+	});
+}
+
 module.exports.get = getOrganisations;
 module.exports.add = addOrganisation;
 module.exports.delete = deleteOrganisation;
+module.exports.deleteOnce = deleteRFandNMLM;
