@@ -10,6 +10,7 @@ var MessageResource = require('./message-resource');
 var RepresentativesResource = require('./representatives-resource');
 var StatisticsResource = require('./statistics-resource');
 var OrganisationResource = require('./organisation-resource');
+var HealthResource = require('./health-resource');
 
 //Set server
 var server = app.listen(8080, function() {
@@ -54,3 +55,6 @@ app.delete('/organisations/IMSURE/:id', OrganisationResource.delete);
 app.get('/statistics/:field', StatisticsResource.getRankedListByField)
 app.get('/statistics/:field/:fromDate', StatisticsResource.getRankedListByField)
 app.get('/statistics/:field/:fromDate/:toDate', StatisticsResource.getRankedListByField)
+
+//Healthcheck
+app.get('/status', HealthResource.get);
