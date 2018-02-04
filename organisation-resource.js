@@ -66,3 +66,4 @@ function deleteOrganisation(req, res, next) {
 module.exports.get = getOrganisations;
 module.exports.add = addOrganisation;
 module.exports.delete = deleteOrganisation;
+
