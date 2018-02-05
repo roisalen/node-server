@@ -11,6 +11,7 @@ var RepresentativesResource = require('./representatives-resource');
 var StatisticsResource = require('./statistics-resource');
 var OrganisationResource = require('./organisation-resource');
 var HealthResource = require('./health-resource');
+var UsageStatistics = require('./usage-statistics');
 
 //Set server
 var server = app.listen(8080, function() {
@@ -58,3 +59,6 @@ app.get('/statistics/:field/:fromDate/:toDate', StatisticsResource.getRankedList
 
 //Healthcheck
 app.get('/status', HealthResource.get);
+
+//Analytics from frontend
+app.get('/registerevent', UsageStatistics.get);

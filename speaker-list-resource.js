@@ -1,6 +1,7 @@
 var SpeakerQueue = require("./models/speakerqueue");
 var RepresentativesResource = require("./representatives-resource");
 var StatisticsService = require('./statistics-resource');
+var UsageStatistics = require('./usage-statistics');
 
 var speakerQueues = {};
 
@@ -27,6 +28,7 @@ module.exports.addSpeaker = function(req, res, next) {
 				}
 				speakerQueue.add(speaker);
 				res.status(200).send(speakerQueue.list);
+				UsageStatistics.registerEvent('addSpeaker');
 				return next();
 			}
 			res.status(500).send();
@@ -49,6 +51,7 @@ module.exports.addReply = function(req, res, next) {
 			var speaker = speakerQueue.get(speakerIndex);
 			speaker.replies.push(replicant);
 			res.status(200).send(speakerQueue.list);
+			UsageStatistics.registerEvent('addReply');
 			return next();
 		}
 		res.status(500).send();
@@ -144,6 +147,7 @@ module.exports.nextSpeaker = function(req, res, next) {
 	}
 
 	res.status(200).send(speakerQueue.list);
+	UsageStatistics.registerEvent('nextSpeaker');
 	return next();
 }
 
