@@ -38,7 +38,7 @@ function addOrganisation(req, res, next) {
 			res.status(201).send(success);
 			return next();
 		} else {
-			console.log(success);
+			console.log(err);
 			res.status(500).send();
 			return next(err);
 		}

@@ -150,12 +150,13 @@ module.exports.nextSpeaker = function(req, res, next) {
 module.exports.removeSpeaker = function(req, res, next) {
 	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	var speakerRank = req.params.speakerRank;
-	var speaker = speakerQueue.get(speakerRank)
 
-	if (!speaker) {
+	if (speakerRank < 0 || speakerRank >= speakerQueue.size())
+	{
 		res.status(404).send();
 		return next();
 	}
+	var speaker = speakerQueue.get(speakerRank)
 	
 	removeSpeaker(speakerRank, speaker, speakerQueue);
 	
