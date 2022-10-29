@@ -19,7 +19,6 @@ function saveLogEntry(logEntry) {
 	logEntry.subject = SubjectResource.getSubject(logEntry.organisation);
 	db.statistics.save(logEntry, function(err, saved) {
   		if( err || !saved ) console.log("Statistics: LogEntry not saved");
-  		else console.log("Statistics: LogEntry saved");
   	});
 }
 
