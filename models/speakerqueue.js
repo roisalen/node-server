@@ -10,7 +10,6 @@ function SpeakerQueue() {
     this.removeAt = removeAt;
     this.get = get;
     this.size = size;
-    console.log("in queue");
 
     function add(who, num) {
         // put speaker into list at index num
@@ -19,7 +18,6 @@ function SpeakerQueue() {
         } else {
             this.list.push(who);
         }
-        console.log("Queue is now: "+JSON.stringify(this.list));
     }
 
     function next() {
@@ -37,7 +35,6 @@ function SpeakerQueue() {
     }
 
     function removeAt(index) {
-        console.log("removing at index "+index);
         if (index > -1) {
             this.list.splice(index, 1);
         } else {

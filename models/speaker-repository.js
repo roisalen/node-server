@@ -28,7 +28,6 @@ function SpeakerRepository(view) {
 	function storeSpeakers() {
 		//localStorage.setItem('speakers', JSON.stringify(_speakersList)); // used to use localstorage
 		$.post(connection_string + "/speakers", JSON.stringify(speaker)); // mongodb
-		console.log("speakers stored");
 	}
 	
 	function size() {
@@ -38,7 +37,6 @@ function SpeakerRepository(view) {
 	function getSpeakerByNum(number) {
 		console.log("Getting speaker number "+number + " from "+JSON.stringify(_speakersList));
 		if (number in _speakersList) {
-			console.log("Found: "+JSON.stringify(_speakersList[number]));
 			return _speakersList[ number ];
 		} else {
 			console.log("Error: Tried to get speaker number " + number + ", but it does not exist.");
