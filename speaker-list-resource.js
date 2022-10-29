@@ -45,8 +45,9 @@ module.exports.addReply = function(req, res, next) {
 	var speakerIndex = 0 
 
 	RepresentativesResource.getSpeakerFromDB(req.header('X-organisation'), replicantId, function(replicant) {
-		if (replicant) {
+		if (replicant && speakerQueue.get(speakerIndex)) {
 			var speaker = speakerQueue.get(speakerIndex);
+
 			speaker.replies.push(replicant);
 			res.status(200).send(speakerQueue.list);
 			return next();
@@ -133,6 +134,11 @@ module.exports.nextSpeaker = function(req, res, next) {
 	var speakerQueue = getSpeakerQueue(organisation);
 	var speakerRank = req.params.speakerRank;
 	var speaker = speakerQueue.get(speakerRank);
+
+	if (!speaker) {
+		res.status(500);
+		return next();
+	}
 
 	if (speaker.speaking) {
 		StatisticsService.logRepresentativeSpoke(speaker, organisation);

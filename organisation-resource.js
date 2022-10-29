@@ -21,6 +21,8 @@ function getOrganisations(req, res, next) {
 			res.status(200).send(success);
 			return next();
 		} else {
+			console.log("failed")
+			console.log(err)
 			res.status(500).send();
 			return next(err);
 		}
