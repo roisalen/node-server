@@ -47,7 +47,7 @@ module.exports.addReply = function(req, res, next) {
 	RepresentativesResource.getSpeakerFromDB(req.header('X-organisation'), replicantId, function(replicant) {
 		if (replicant && speakerQueue.get(speakerIndex)) {
 			var speaker = speakerQueue.get(speakerIndex);
-            if (!speaker.replies) {
+            if (!speaker || !speaker.replies) {
                 res.status(500).send();
                 return next();
             }
