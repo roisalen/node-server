@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/bin/mongod --dbpath data/ & nodemon
+/usr/local/bin/mongod --dbpath data2/ & nodemon

@@ -1,6 +1,7 @@
 var mongojs = require("mongojs");
 var connection_string = process.env.MONGOLAB_URI || '127.0.0.1:27017/roisalen';
 var db = mongojs(connection_string, ['organisations']);
+var ObjectId = require('mongojs').ObjectId;
 
 function compare(orgA, orgB) {
 	return orgA.name.localeCompare(orgB.name);
@@ -63,8 +64,33 @@ function deleteOrganisation(req, res, next) {
 	});
 }
 
+function deleteInactiveOrganisations(req, res, next) {
+	// Set cutoff date to January 1st, 2022
+	const cutoffDate = new Date('2022-01-01');
+	
+	db.organisations.remove(
+		{
+			$or: [
+				{ lastActivity: { $lt: cutoffDate } },
+				{ lastActivity: { $exists: false } }  // Also remove orgs with no activity
+			]
+		}, 
+		function(err, result) {
+			if (err) {
+				console.log("Error deleting inactive organizations:", err);
+				res.status(500).send();
+				return next(err);
+			}
+			
+			console.log("Deleted inactive organizations:", result.n);
+			res.status(200).send({deletedCount: result.n});
+			return next();
+		}
+	);
+}
 
 module.exports.get = getOrganisations;
 module.exports.add = addOrganisation;
 module.exports.delete = deleteOrganisation;
+module.exports.deleteInactive = deleteInactiveOrganisations;
 

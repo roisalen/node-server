@@ -21,7 +21,7 @@ module.exports.addSpeaker = function(req, res, next) {
 	var speakerQueue = getSpeakerQueue(req.header('X-organisation'));
 	
 	var addSpeakerToListIfSpeaker = function(speaker) {
-			if (speaker) {
+			if (speaker && speaker != null) {
 				if (speakerQueue.list.length === 0) {
 					speaker.speaking = true;
 				}
