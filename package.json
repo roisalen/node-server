@@ -1,33 +1,9 @@
 {
-  "name": "roisalen-server",
-  "version": "0.0.1",
+  "name": "roisalen-api",
+  "version": "1.0.0",
   "type": "module",
-  "description": "Rest web-server for speakerlist and administration",
-  "main": "server.js",
   "dependencies": {
-    "body-parser": "^1.12.2",
-    "cors": "^2.5.3",
-    "express": "^4.12.3",
-    "mongodb": "^3.0.1",
-    "mongojs": "^2.4.1",
-    "node-fetch": "^2.7.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "author": "Torkil Vederhus",
-  "license": "GNU GPL",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/torkilv/roisalen"
-  },
-  "keywords": [
-    "meetings",
-    "administration"
-  ],
-  "bugs": {
-    "url": "https://github.com/torkilv/roisalen/issues"
-  },
-  "homepage": "https://github.com/torkilv/roisalen"
+    "aws-sdk": "^2.1001.0",
+    "@aws-sdk/client-dynamodb": "^3.0.0"
+  }
 }

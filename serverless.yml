@@ -1,0 +1,229 @@
+service: roisalen-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-west-1
+  environment:
+    ORGANIZATIONS_TABLE: ${self:service}-organizations-${opt:stage, 'dev'}
+    STATISTICS_TABLE: ${self:service}-statistics-${opt:stage, 'dev'}
+    REPRESENTATIVES_TABLE: ${self:service}-representatives-${opt:stage, 'dev'}
+    SPEAKER_LISTS_TABLE: ${self:service}-speakerLists-${opt:stage, 'dev'}
+    SUBJECTS_TABLE: ${self:service}-subjects-${opt:stage, 'dev'}
+    MESSAGES_TABLE: ${self:service}-messages-${opt:stage, 'dev'}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+      Resource: 
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.ORGANIZATIONS_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.STATISTICS_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.REPRESENTATIVES_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.SPEAKER_LISTS_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.SUBJECTS_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.MESSAGES_TABLE}"
+
+functions:
+  # Organizations
+  getOrganizations:
+    handler: lambdas/getOrganizations.handler
+    events:
+      - http:
+          path: organisations
+          method: get
+          cors: true
+
+  deleteOrganization:
+    handler: lambdas/deleteOrganization.handler
+    events:
+      - http:
+          path: organisations/IMSURE/{id}
+          method: delete
+          cors: true
+
+  # Statistics
+  getStatistics:
+    handler: lambdas/getStatistics.handler
+    events:
+      - http:
+          path: statistics/date/{fromDate}/{toDate}
+          method: get
+          cors: true
+
+  # Representatives
+  getAllRepresentatives:
+    handler: lambdas/representatives.getAll
+    events:
+      - http:
+          path: representatives
+          method: get
+          cors: true
+
+  addRepresentative:
+    handler: lambdas/representatives.addRepresentative
+    events:
+      - http:
+          path: representatives
+          method: post
+          cors: true
+
+  # Speaker List
+  getSpeakerList:
+    handler: lambdas/speakerList.getList
+    events:
+      - http:
+          path: speakerList
+          method: get
+          cors: true
+
+  addToSpeakerList:
+    handler: lambdas/speakerList.addSpeaker
+    events:
+      - http:
+          path: speakerList
+          method: post
+          cors: true
+
+  removeSpeaker:
+    handler: lambdas/speakerList.removeSpeaker
+    events:
+      - http:
+          path: speakerList/{speakerRank}
+          method: delete
+          cors: true
+
+  addReply:
+    handler: lambdas/speakerList.addReply
+    events:
+      - http:
+          path: speakerList/{speakerRank}/replies
+          method: post
+          cors: true
+
+  removeReply:
+    handler: lambdas/speakerList.removeReply
+    events:
+      - http:
+          path: speakerList/{speakerRank}/replies/{replyRank}
+          method: delete
+          cors: true
+
+  # Subject
+  getSubject:
+    handler: lambdas/subject.getSubject
+    events:
+      - http:
+          path: subject
+          method: get
+          cors: true
+
+  setSubject:
+    handler: lambdas/subject.setSubject
+    events:
+      - http:
+          path: subject
+          method: post
+          cors: true
+
+  # Message
+  getMessage:
+    handler: lambdas/message.getMessage
+    events:
+      - http:
+          path: message
+          method: get
+          cors: true
+
+  setMessage:
+    handler: lambdas/message.setMessage
+    events:
+      - http:
+          path: message
+          method: post
+          cors: true
+
+resources:
+  Resources:
+    OrganizationsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.ORGANIZATIONS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: _id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: _id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    StatisticsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.STATISTICS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: organisation
+            AttributeType: S
+          - AttributeName: fullDate
+            AttributeType: S
+        KeySchema:
+          - AttributeName: organisation
+            KeyType: HASH
+          - AttributeName: fullDate
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    RepresentativesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.REPRESENTATIVES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: organisation
+            AttributeType: S
+          - AttributeName: number
+            AttributeType: N
+        KeySchema:
+          - AttributeName: organisation
+            KeyType: HASH
+          - AttributeName: number
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    SpeakerListsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.SPEAKER_LISTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: organisation
+            AttributeType: S
+        KeySchema:
+          - AttributeName: organisation
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    SubjectsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.SUBJECTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: organisation
+            AttributeType: S
+        KeySchema:
+          - AttributeName: organisation
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    MessagesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.MESSAGES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: organisation
+            AttributeType: S
+        KeySchema:
+          - AttributeName: organisation
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST 
