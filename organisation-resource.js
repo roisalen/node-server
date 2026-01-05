@@ -22,9 +22,11 @@ function generateSlug() {
 
 function getOrganisations(req, res, next) {
 	// Filter out hidden organizations for front-page display, unless includeHidden=true
+	// Default behavior: treat missing hidden field as hidden=true (all existing orgs are hidden by default)
 	var query = {};
 	if (req.query.includeHidden !== 'true') {
-		query.hidden = { $ne: true };
+		// Only show organizations that explicitly have hidden: false
+		query.hidden = false;
 	}
 	db.organisations.find(query, function(err, success) {
 		if (success) {
