@@ -1,0 +1,40 @@
+# Interim DigitalOcean deploy — set secrets DO_SSH_HOST, DO_SSH_USER, DO_SSH_KEY
+name: Deploy DigitalOcean
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+      - 'roisalen-cdk/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # The secrets context is not allowed in job-level `if`, so check it in a step
+      - name: Check SSH secrets are configured
+        id: secrets
+        env:
+          DO_SSH_HOST: ${{ secrets.DO_SSH_HOST }}
+          DO_SSH_KEY: ${{ secrets.DO_SSH_KEY }}
+        run: |
+          if [ -n "$DO_SSH_HOST" ] && [ -n "$DO_SSH_KEY" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "SSH secrets not configured; skipping deploy"
+          fi
+      - name: Deploy backend over SSH
+        if: steps.secrets.outputs.configured == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_SSH_HOST }}
+          username: ${{ secrets.DO_SSH_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd /opt/node-server
+            git pull
+            pm2 restart server || pm2 restart all

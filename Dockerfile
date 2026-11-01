@@ -1,20 +1,18 @@
-from node:6
+# Production image for ECS Fargate / App Runner (see roisalen-server/infra/aws/)
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY models/ .
-COPY organisation-resource.js .
-COPY representatives-resource.js .
-COPY server.js .
-COPY speaker-list-resource.js .
-COPY statistics-resource.js .
-COPY subject-resource.js .
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
-COPY package.json .
+COPY . .
 
-RUN npm install
-RUN npm install -g nodemon
-RUN npm install longjohn
+RUN chown -R node:node /app
 
-CMD [ "npm", "start" ]
+ENV NODE_ENV=production
+EXPOSE 8080
 
+USER node
+
+CMD ["node", "server.js"]

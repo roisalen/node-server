@@ -22,3 +22,16 @@ key.pem
 # Organization export files
 organizations-export-*.json
 organizations-export-*.txt
+
+# Local MongoDB data, never commit
+data/
+data2/
+
+# Retired AWS CDK experiment (archived outside the repo)
+roisalen-cdk/
+
+coverage/
+.env
+.env.*
+!.env.example
+*.pkg

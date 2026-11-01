@@ -207,3 +207,36 @@ module.exports.deleteReply = function(req, res, next) {
 	res.status(200).send(speakerQueue.list);
 	return next();
 }
+
+/**
+ * Non-empty speaker queues per organisation (in-memory). Used by usage dashboard.
+ */
+function getQueuesSnapshot() {
+	return Object.keys(speakerQueues).map(function (org) {
+		var q = speakerQueues[org];
+		var list = q.list || [];
+		var current = list[0];
+		var currentSpeakerLabel = null;
+		if (current) {
+			if (current.speaking) {
+				currentSpeakerLabel = current.name || String(current.number);
+			} else if (current.replies && current.replies.length) {
+				for (var r = 0; r < current.replies.length; r++) {
+					if (current.replies[r].speaking) {
+						currentSpeakerLabel = current.replies[r].name || String(current.replies[r].number);
+						break;
+					}
+				}
+			}
+		}
+		return {
+			organisation: org,
+			queueLength: list.length,
+			currentSpeakerLabel: currentSpeakerLabel
+		};
+	}).filter(function (row) {
+		return row.queueLength > 0;
+	});
+}
+
+module.exports.getQueuesSnapshot = getQueuesSnapshot;

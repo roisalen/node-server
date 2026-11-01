@@ -11,13 +11,18 @@ var RepresentativesResource = require('./representatives-resource');
 var StatisticsResource = require('./statistics-resource');
 var OrganisationResource = require('./organisation-resource');
 var HealthResource = require('./health-resource');
+var UsageResource = require('./usage-resource');
 
-//Set server
-var server = app.listen(8080, function() {
-	var host = server.address().address
-	var port = server.address().port
-	console.log('Listening at http://%s:%s', host, port)
-})
+//Set server (skip listen in tests so Supertest can inject requests)
+if (process.env.NODE_ENV !== 'test') {
+	var server = app.listen(8080, function() {
+		var host = server.address().address
+		var port = server.address().port
+		console.log('Listening at http://%s:%s', host, port)
+	})
+}
+
+module.exports = app
 
 //Use bodyparser and cors
 app.use(bodyParser.json())
@@ -58,3 +63,6 @@ app.get('/statistics/:field/:fromDate/:toDate', StatisticsResource.getRankedList
 
 //Healthcheck
 app.get('/status', HealthResource.get);
+
+// Usage dashboard (protected — see ROISALEN_ADMIN_SECRET)
+app.get('/usage/summary', UsageResource.getSummary);
